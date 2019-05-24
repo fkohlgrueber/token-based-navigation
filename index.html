@@ -1,0 +1,74 @@
+<head>
+<style>
+*:focus {
+    outline: none;
+}
+</style>
+</head>
+
+<body id="root" style="font-family: monospace; font-size: 12pt;padding: 30px; padding-left: 100px;">
+
+<div style="padding-bottom: 30px;">
+<i style="font-size: 18pt;">Token-based navigation</i>
+<div style="color: gray;">Non-selectable whitespace between tokens</div>
+</div>
+
+<div id="text" style="position: relative;">
+  <span>let x = 1;</span><span style="color: gray;"> // token-based</span>
+
+  <div id="cursor" style="background-color: white; position: absolute; width: 1px; height: 19px; top: 0em; left: 0px;"></div>
+</div>
+
+<div>
+<span id=foo style="color: white">x</span>
+</div>
+
+<div id="content" contenteditable="true">
+<span id="content_inner">let x = 1;</span><span style="color: gray;"> // regular</span>
+</div>
+
+</body>
+
+<script type="text/javascript">
+  var width = document.getElementById('foo').getBoundingClientRect().width;
+  console.log(width);
+  
+  var pos = [0, 1, 2, 3, 4, 5.5, 7.5, 9, 10];
+  
+  var cur_pos_idx = 0;
+  
+  document.getElementById("root").onkeydown = function(evt) {
+    console.log(document.activeElement);
+    if (document.activeElement === document.getElementById('root')) {
+      if (evt.key === "ArrowLeft") {
+        cur_pos_idx = Math.max(cur_pos_idx-1, 0);
+      } else if (evt.key === "ArrowRight") {
+        cur_pos_idx = Math.min(cur_pos_idx+1, pos.length-1);
+      }
+      console.log(cur_pos_idx);
+      document.getElementById('cursor').style.left = (pos[cur_pos_idx] * width) + "px";
+    }
+  }
+  
+  document.getElementById("content").onfocus = function() {
+    console.log(document.getElementById("cursor").style);
+    document.getElementById("cursor").style["background-color"] = "white";
+  }
+  
+  document.getElementById("text").onclick = function(evt) {
+    document.getElementById("cursor").style["background-color"] = "black";
+    var left = document.getElementById("content_inner").getBoundingClientRect().left;
+    diff = 1000;
+    idx = -1;
+    for (i = 0; i < pos.length; i++) {
+      var tmp_diff = Math.abs((pos[i] * width) - (evt.clientX-left) );
+      if (tmp_diff < diff) {
+        diff = tmp_diff;
+        idx = i;
+      }
+    }
+    cur_pos_idx = idx;
+    document.getElementById('cursor').style.left = (pos[cur_pos_idx] * width) + "px";
+  }
+  </script>
+  
